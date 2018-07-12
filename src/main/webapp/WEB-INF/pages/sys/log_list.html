@@ -44,7 +44,7 @@
 </div>
 <script type="text/javascript">
    $(document).ready(function(){
-	   $("#pageId").load("pageUI.do",function(){
+	   $("#pageId").load("doPageUI.do",function(){
 		   doGetObjects();
 	   });
 	   $(".input-group-btn")
@@ -67,7 +67,7 @@
 	   $.getJSON(url,params,function(result){
 		   if(result.state==1){
 			  setTableBodyRows(result.data.records);
-			  setPagination(result.data);
+			  doSetPagination(result.data);
 		   }else{
 			  alert(result.message);
 		   }
