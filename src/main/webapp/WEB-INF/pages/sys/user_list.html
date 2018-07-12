@@ -57,7 +57,8 @@
 	   $(".input-group-btn")
 	   .on("click",".btn-search",doQueryObjects)
 	   .on("click",".btn-add,.btn-update",doLoadEditUI)
-	   .on("click",".btn-add,.btn-download_excel",downloadExl);
+	   .on("click",".btn-add,.btn-download_excel",downloadExl)
+	   .on("click",".btn-add,.btn-download_pdf",downloadPDF);
 	   $("tbody").on("click",".btn-valid",doValidById);
    });
    
@@ -154,8 +155,7 @@
 		   //console.log(result);
 		   jsono = result.data.records; 
 		   doHandleResponseResult(result);
-	   });
-   }
+	   });   }
    function doHandleResponseResult(result){
 	   if(result.state==1){
 		  doSetTableBodyRows(result.data.records);
@@ -190,6 +190,57 @@
 	     "<td>"+new Date(row.modifiedTime).toLocaleString()+"</td>"+
 	     "<td><button type='button' class='btn btn-default btn-valid'>"+(row.valid?"禁用":"启用")+"</button></td>"; 
        return tds;
+   }
+   function downloadPDF() {
+       var columns = [
+           { title: "用户ID", dataKey: "id" },
+           { title: "用户名", dataKey: "username" },
+           { title: "邮箱", dataKey: "email" },
+           { title: "手机", dataKey: "mobile" },
+           { title: "权限", dataKey: "valid" },
+           { title: "部门", dataKey: "sysDept" },
+           { title: "创建时间", dataKey: "createdTime" },
+           { title: "修改时间", dataKey: "modifiedTime" },
+           { title: "创建人", dataKey: "createdUser" },
+           { title: "修改人", dataKey: "modifiedUser" },
+       ];
+       var rowData = jsono;
+
+       // Only pt supported (not mm or in)
+       var doc = new jsPDF('l', 'pt');
+       doc.autoTable(columns, rowData, {
+    	    //此处设置参见https://github.com/simonbengtsson/jsPDF-AutoTable#options
+    	    styles: { overflow: 'linebreak', columnWidth: 'wrap', halign: 'center', valign: 'middle' },
+    	    drawCell: function(cell, data) {
+    	        if (data.column.isImage) {
+    	            var text = Array.isArray(cell.text) && cell.text.length ? cell.text.join('') : cell.text;
+    	            if (typeof text != 'string' || !text.startsWith('data:image/')) return true;
+    	            var getFillStyle = function(styles) {
+    	                var drawLine = styles.lineWidth > 0;
+    	                var drawBackground = styles.fillColor || styles.fillColor === 0;
+    	                if (drawLine && drawBackground) {
+    	                    return 'DF'; // Fill then stroke
+    	                } else if (drawLine) {
+    	                    return 'S'; // Only stroke (transparent background)
+    	                } else if (drawBackground) {
+    	                    return 'F'; // Only fill, no stroke
+    	                } else {
+    	                    return false;
+    	                }
+    	            }
+    	            var fillStyle = getFillStyle(cell.styles);
+    	            if (fillStyle) {
+    	                data.doc.rect(cell.x, cell.y, cell.width, cell.height, fillStyle);
+    	            }
+    	            var x = cell.x + (cell.width - 20) * 0.5;
+    	            var y = cell.y + (cell.height - 20) * 0.5;
+    	            data.doc.addImage(text, 'PNG', x, y, 20, 20);
+    	            return false;
+    	        }
+    	        return true;
+    	    },
+    	});
+       doc.save('table.pdf');
    }
 
    
