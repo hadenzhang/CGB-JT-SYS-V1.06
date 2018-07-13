@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,6 +21,7 @@ import com.jt.common.util.ShiroUtils;
 import com.jt.sys.dao.SysLogDao;
 import com.jt.sys.entity.SysLog;
 
+@Order(1)
 @Aspect
 @Component
 public class SysLogAspect {
@@ -84,5 +86,4 @@ public class SysLogAspect {
     	//3.保存日志信息
     	sysLogDao.insertObject(log);
     }
-	
 }

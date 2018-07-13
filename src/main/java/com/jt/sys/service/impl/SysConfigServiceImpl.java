@@ -3,6 +3,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.jt.common.anno.RequestLog;
@@ -13,14 +16,12 @@ import com.jt.sys.entity.SysConfig;
 import com.jt.sys.service.SysConfigService;
 
 @Service
+@Transactional(rollbackFor=Throwable.class,propagation=Propagation.REQUIRED)
 public class SysConfigServiceImpl implements SysConfigService {
 	@Autowired
 	private SysConfigDao sysConfigDao;
-	
-	
 	//Controller-->访问
 	//RPC-->访问
-	
 	@Override
 	public int updateObject(SysConfig entity) {
 		//1.合法校验
@@ -62,6 +63,8 @@ public class SysConfigServiceImpl implements SysConfigService {
 		//给运维人员发短信.
 		throw new ServiceException("系统故障,正在修复中");
 		}
+		if(rows==1)//应该是成功了
+		throw new ServiceException("保存失败");
 		//3.返回更新的行数
 		return rows;
 	}
@@ -86,6 +89,7 @@ public class SysConfigServiceImpl implements SysConfigService {
 		throw new ServiceException("对应的记录已经不存在");
 		return rows;
 	}
+	@Transactional(readOnly=true,timeout=30,isolation=Isolation.READ_COMMITTED)//只读事务
 	@RequestLog("分页查询配置信息")
 	@Override
 	public PageObject<SysConfig> findPageObjects(

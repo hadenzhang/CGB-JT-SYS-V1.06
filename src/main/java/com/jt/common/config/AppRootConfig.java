@@ -27,10 +27,11 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.jt.sys.service.realm.ShiroUserRealm;
 
 @Configuration
 @PropertySource(value="classpath:configs.properties")
@@ -38,6 +39,7 @@ import com.jt.sys.service.realm.ShiroUserRealm;
 excludeFilters={@Filter(type=FilterType.ANNOTATION,classes={Controller.class})})
 @MapperScan(basePackages="com.jt.**.dao")
 @EnableAspectJAutoProxy //启用AOP(<aop:aspectj-autoproxy/>)
+@EnableTransactionManagement
 public class AppRootConfig {//service,dao
 	 /**
 	  * 让系统支持多个properties文件应用
@@ -147,6 +149,17 @@ public class AppRootConfig {//service,dao
 	 	    new AuthorizationAttributeSourceAdvisor();
 	 		bean.setSecurityManager(securityManager);
 	 		return bean;
+	 }
+	 //======transaction manager===========
+	 
+	 @Bean("txManager")
+	 public DataSourceTransactionManager 
+	        newDataSourceTransactionManager(
+			 @Autowired DataSource dataSource){
+		 DataSourceTransactionManager tManager=
+			new DataSourceTransactionManager();
+		 tManager.setDataSource(dataSource);
+		 return tManager;
 	 }
 
 }

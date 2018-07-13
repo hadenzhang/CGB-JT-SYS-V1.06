@@ -17,7 +17,8 @@
            </if>
          </where>
      </sql>
-    <select id="findPageObjects" resultType="com.jt.sys.entity.SysLog">
+    <select id="findPageObjects" 
+            resultType="com.jt.sys.entity.SysLog">
        select * 
        from sys_logs
        <include refid="pageWhere"/>
