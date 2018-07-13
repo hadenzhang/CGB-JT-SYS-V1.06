@@ -179,7 +179,8 @@
 	  }
    }
    function doCreateTds(row){
-	   console.log(row);
+	   //console.log(row);
+	   //
 	   var tds="<td><input type='radio' name='radioId' value='"+row.id+"' ></td>"+
 	     "<td>"+row.username+"</td>"+
 	     "<td>"+row.sysDept.name+"</td>"+
@@ -191,26 +192,74 @@
 	     "<td><button type='button' class='btn btn-default btn-valid'>"+(row.valid?"禁用":"启用")+"</button></td>"; 
        return tds;
    }
-   function downloadPDF() {
-       var columns = [
-           { title: "用户ID", dataKey: "id" },
-           { title: "用户名", dataKey: "username" },
-           { title: "邮箱", dataKey: "email" },
-           { title: "手机", dataKey: "mobile" },
-           { title: "权限", dataKey: "valid" },
-           { title: "部门", dataKey: "sysDept" },
-           { title: "创建时间", dataKey: "createdTime" },
-           { title: "修改时间", dataKey: "modifiedTime" },
-           { title: "创建人", dataKey: "createdUser" },
-           { title: "修改人", dataKey: "modifiedUser" },
-       ];
-       var rowData = jsono;
+   Date.prototype.Format = function (fmt) {
+	   var o = {
+	     "y+": this.getFullYear(),
+	     "M+": this.getMonth() + 1,                 //月份
+	     "d+": this.getDate(),                    //日
+	     "h+": this.getHours(),                   //小时
+	     "m+": this.getMinutes(),                 //分
+	     "s+": this.getSeconds(),                 //秒
+	     "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+	     "S+": this.getMilliseconds()             //毫秒
+	   };
+	   for (var k in o) {
+	     if (new RegExp("(" + k + ")").test(fmt)){
+	       if(k == "y+"){
+	         fmt = fmt.replace(RegExp.$1, ("" + o[k]).substr(4 - RegExp.$1.length));
+	       }
+	       else if(k=="S+"){
+	         var lens = RegExp.$1.length;
+	         lens = lens==1?3:lens;
+	         fmt = fmt.replace(RegExp.$1, ("00" + o[k]).substr(("" + o[k]).length - 1,lens));
+	       }
+	       else{
+	         fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+	       }
+	     }
+	   }
+	   return fmt;
+	 }
 
+   function format4Download(jsono){
+	   var result =[];
+	   console.log(jsono);
+	   for(var i in jsono){
+		   var temp = {};
+		   temp["ID"] = jsono[i].id;
+		   temp["用户名"] = jsono[i].username;
+		   temp["邮箱"] = jsono[i].email;
+		   temp["手机"] = jsono[i].mobile;
+		   temp["权限"] = jsono[i].valid;
+		   temp["部门"] = jsono[i].sysDept.name;
+		   temp["创建时间"]=  new Date(jsono[i].createdTime).Format("yyyy-MM-dd hh:mm:ss");
+		   temp["修改时间"] = new Date(jsono[i].modifiedTime).Format("yyyy-MM-dd hh:mm:ss");
+		   result[i] = temp;
+	   }
+	   return result; 
+   }
+   
+   function downloadPDF() {
+
+       var columns = [
+           { title: "ID", dataKey: "ID" },
+           { title: "用户名", dataKey: "用户名" },
+           { title: "邮箱", dataKey: "邮箱" },
+           { title: "手机", dataKey: "手机" },
+           { title: "权限", dataKey: "权限" },
+           { title: "部门", dataKey: "部门" },
+           { title: "创建时间", dataKey: "创建时间" },
+           { title: "修改时间", dataKey: "修改时间" },
+       ];
+       var rowData = format4Download(jsono);
+       
        // Only pt supported (not mm or in)
        var doc = new jsPDF('l', 'pt');
+       doc.text(20, 20, '用户信息表');
        doc.autoTable(columns, rowData, {
     	    //此处设置参见https://github.com/simonbengtsson/jsPDF-AutoTable#options
     	    styles: { overflow: 'linebreak', columnWidth: 'wrap', halign: 'center', valign: 'middle' },
+    	    
     	    drawCell: function(cell, data) {
     	        if (data.column.isImage) {
     	            var text = Array.isArray(cell.text) && cell.text.length ? cell.text.join('') : cell.text;
@@ -240,12 +289,12 @@
     	        return true;
     	    },
     	});
-       doc.save('table.pdf');
+       doc.save('用户信息表.pdf');
    }
 
    
    function downloadExl() {
-	  	var json = jsono;
+	  	var json = format4Download(jsono);
 	  	var type;
 	   //数据格式化
 	   
@@ -265,9 +314,9 @@
            });
            var outputPos = Object.keys(tmpdata); //设置区域,比如表格从A1到D10
            var tmpWB = {
-               SheetNames: ['mySheet'], //保存的表标题
+               SheetNames: ['用户信息表'], //保存的表标题
                Sheets: {
-                   'mySheet': Object.assign({},
+                   '用户信息表': Object.assign({},
                        tmpdata, //内容
                        {
                            '!ref': outputPos[0] + ':' + outputPos[outputPos.length - 1] //设置填充区域
