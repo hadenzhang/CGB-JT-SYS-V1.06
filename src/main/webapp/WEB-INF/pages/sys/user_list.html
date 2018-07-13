@@ -5,7 +5,7 @@
 				<h3 class="box-title">用户管理</h3>
 
 				<div class="box-tools">
-					<div class="input-group input-group-sm" style="width: 350px;">
+					<div class="input-group input-group-sm" style="width: 400px;">
 						<input type="text" name="table_search" id="searchNameId"
 							class="form-control pull-right" placeholder="用户名">
 
@@ -48,8 +48,7 @@
 	</div>
 </div>
 <script type="text/javascript">
-	var jsono;
-	var tmpDown; //导出的二进制对象
+
    $(document).ready(function(){
 	   $("#pageId").load("doPageUI.do",function(){
 		   doGetObjects();
@@ -193,6 +192,8 @@
        return tds;
    }
 
+	var jsono;
+	var tmpDown; //导出的二进制对象
    function format4Download(jsono){
 	   var result =[];
 	   console.log(jsono);
