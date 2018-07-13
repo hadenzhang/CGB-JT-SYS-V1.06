@@ -48,7 +48,6 @@
 	</div>
 </div>
 <script type="text/javascript">
-
    $(document).ready(function(){
 	   $("#pageId").load("doPageUI.do",function(){
 		   doGetObjects();
@@ -191,7 +190,34 @@
 	     "<td><button type='button' class='btn btn-default btn-valid'>"+(row.valid?"禁用":"启用")+"</button></td>"; 
        return tds;
    }
-
+   Date.prototype.Format = function (fmt) {
+	   var o = {
+	     "y+": this.getFullYear(),
+	     "M+": this.getMonth() + 1,                 //月份
+	     "d+": this.getDate(),                    //日
+	     "h+": this.getHours(),                   //小时
+	     "m+": this.getMinutes(),                 //分
+	     "s+": this.getSeconds(),                 //秒
+	     "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+	     "S+": this.getMilliseconds()             //毫秒
+	   };
+	   for (var k in o) {
+	     if (new RegExp("(" + k + ")").test(fmt)){
+	       if(k == "y+"){
+	         fmt = fmt.replace(RegExp.$1, ("" + o[k]).substr(4 - RegExp.$1.length));
+	       }
+	       else if(k=="S+"){
+	         var lens = RegExp.$1.length;
+	         lens = lens==1?3:lens;
+	         fmt = fmt.replace(RegExp.$1, ("00" + o[k]).substr(("" + o[k]).length - 1,lens));
+	       }
+	       else{
+	         fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+	       }
+	     }
+	   }
+	   return fmt;
+	 }
 	var jsono;
 	var tmpDown; //导出的二进制对象
    function format4Download(jsono){
@@ -213,7 +239,6 @@
    }
    
    function downloadPDF() {
-
        var columns = [
            { title: "ID", dataKey: "ID" },
            { title: "用户名", dataKey: "用户名" },
@@ -264,7 +289,6 @@
     	});
        doc.save('用户信息表.pdf');
    }
-
    
    function downloadExl() {
 	  	var json = format4Download(jsono);
@@ -308,7 +332,6 @@
            URL.revokeObjectURL(tmpDown); //用URL.revokeObjectURL()来释放这个object URL
        }, 100);
    }
-
    function s2ab(s) { //字符串转字符流
        var buf = new ArrayBuffer(s.length);
        var view = new Uint8Array(buf);
@@ -328,7 +351,3 @@
        return s
    }
 </script>
-
-
-
-
